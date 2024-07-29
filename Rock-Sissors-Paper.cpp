@@ -18,6 +18,9 @@ using namespace std;
 #define ID_SISSORS 2
 #define ID_PAPER 3
 #define ID_STATUS 4
+#define ID_TEXT1 5
+#define ID_TEXT2 6
+#define IDI_ICON1 102
 
 char you;
 
@@ -97,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     WNDCLASSW wc = {0};
     wc.lpszClassName = title;
     wc.hInstance     = hInstance;
-    wc.hIcon         = LoadIcon(0, IDI_APPLICATION);
+    wc.hIcon         = LoadIcon(0, (LPCWSTR) IDI_ICON1);
     wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
     wc.lpfnWndProc   = WndProc;
     wc.hCursor       = LoadCursor(0, IDC_ARROW);
@@ -121,8 +124,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
         return 0;
     }
 
+
+    HICON hicon = (HICON) LoadImageW(GetModuleHandleW(NULL), MAKEINTRESOURCEW(IDI_ICON1), 
+        IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR | LR_DEFAULTSIZE);
+    SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM) hicon);
+
     // Simple game instructions in status bar
-    status = CreateStatusWindow(WS_CHILD | WS_VISIBLE, TEXT("Your fist is on the left, Computer fist is on the right. Choose your fist!"), hwnd, 0);
+    status = CreateStatusWindow(WS_CHILD | WS_VISIBLE, TEXT("Choose your fist!"), hwnd, 0);
 
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
@@ -144,6 +152,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	HWND radiobutton_handle_1;
     HWND radiobutton_handle_2;
     HWND radiobutton_handle_3;
+    
+    HWND textfield_1;
+    HWND textfield_2;
   
     HDC hdc;
     PAINTSTRUCT ps;
@@ -161,21 +172,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case WM_CREATE:
 
+            textfield_1 = CreateWindowExW(0, L"Static", L"You",
+                WS_VISIBLE | WS_CHILD,
+                200, 10, 100, 15, hwnd, (HMENU) ID_TEXT1, g_hinst, NULL);
+            textfield_2 = CreateWindowExW(0, L"Static", L"Computer",
+                WS_VISIBLE | WS_CHILD,
+                340, 10, 100, 15, hwnd, (HMENU) ID_TEXT2, g_hinst, NULL);
+
             InitCommonControls();
 
             radiogroup = CreateWindowExW(0,L"Button", L"Choose:", 
                   WS_VISIBLE | WS_CHILD | BS_GROUPBOX,
-                  10, 10, 120, 110, hwnd, NULL, g_hinst, NULL);
+                  10, 20, 120, 110, hwnd, NULL, g_hinst, NULL);
                            
             radiobutton_handle_1 = CreateWindowExW(0,L"Button", L"Rock",
                   WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,
-                  20, 30, 100, 30, hwnd, (HMENU) ID_ROCK , g_hinst, NULL);
+                  20, 40, 100, 30, hwnd, (HMENU) ID_ROCK , g_hinst, NULL);
             radiobutton_handle_2 = CreateWindowExW(0,L"Button", L"Sissors",
                   WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-                  20, 55, 100, 30, hwnd, (HMENU) ID_SISSORS , g_hinst, NULL);
+                  20, 65, 100, 30, hwnd, (HMENU) ID_SISSORS , g_hinst, NULL);
             radiobutton_handle_3 = CreateWindowExW(0,L"Button", L"Paper",
                   WS_VISIBLE | WS_CHILD | BS_AUTORADIOBUTTON,
-                  20, 80, 100, 30, hwnd, (HMENU) ID_PAPER , g_hinst, NULL);      
+                  20, 90, 100, 30, hwnd, (HMENU) ID_PAPER , g_hinst, NULL);      
 
             break;
 
@@ -187,17 +205,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 case ID_ROCK:
                     you = 's';
                     hBitmap = (HBITMAP) LoadImageW(NULL, L".\\pics\\Left_Rock.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
                     break;
                 case ID_SISSORS:
                     you = 'z';
                     hBitmap = (HBITMAP) LoadImageW(NULL, L".\\pics\\Left_Sissors.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
                     break;
                 case ID_PAPER:
                     you = 'p';
                     hBitmap = (HBITMAP) LoadImageW(NULL, L".\\pics\\Left_Paper.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
                     break;
             }
             if (hBitmap == NULL) {
@@ -216,19 +234,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		        // s is denoting Stone
 		        computer = 's';
                 hBitmap2 = (HBITMAP) LoadImageW(NULL, L".\\pics\\Right_Rock.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
             }
 	        else if (n > 3 && n < 6) {
                 // p is denoting Paper
 		        computer = 'p';
                 hBitmap2 = (HBITMAP) LoadImageW(NULL, L".\\pics\\Right_Paper.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
             }
             else {
 		        // z is denoting Sissors
 		        computer = 'z';
                 hBitmap2 = (HBITMAP) LoadImageW(NULL, L".\\pics\\Right_Sissors.bmp", 
-                    IMAGE_BITMAP, 100, 100, LR_LOADFROMFILE);
+                    IMAGE_BITMAP, 100, 110, LR_LOADFROMFILE);
             }
 
             if (hBitmap2 == NULL) {
@@ -275,19 +293,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             // Draw user selection
             oldBitmap = SelectObject(hdcMem, hBitmap);
             GetObject(hBitmap, sizeof(bitmap), &bitmap);
-            BitBlt(hdc, 160, 20, bitmap.bmWidth, bitmap.bmHeight, 
+            BitBlt(hdc, 160, 30, bitmap.bmWidth, bitmap.bmHeight, 
             hdcMem, 0, 0, SRCCOPY);
             SelectObject(hdcMem, oldBitmap);
 
             // Draw computer selection
             oldBitmap2 = SelectObject(hdcMem, hBitmap2);
             GetObject(hBitmap2, sizeof(bitmap2), &bitmap2);
-            BitBlt(hdc, 320, 20, bitmap2.bmWidth, bitmap2.bmHeight, 
+            BitBlt(hdc, 320, 30, bitmap2.bmWidth, bitmap2.bmHeight, 
             hdcMem, 0, 0, SRCCOPY);
             SelectObject(hdcMem, oldBitmap2);
 
             // Output result
-            MessageBoxW(NULL, winloosedraw, L"Result", MB_OK);
+            //MessageBoxW(NULL, winloosedraw, L"Result", MB_OK);
+            SendMessage( status, SB_SETTEXT, 0, (LPARAM) winloosedraw);
 
             DeleteDC(hdcMem);
             EndPaint(hwnd, &ps);
