@@ -228,6 +228,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             // start computer turn
             hBitmap2 = NULL;
 
+            srand((unsigned)time(NULL));
             n = rand() % 10;
             //printf("WM_COMMAND: n = %d\n",n);
             if (n < 3) {
